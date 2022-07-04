@@ -2,7 +2,6 @@ package com.magazine.article.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,15 +22,15 @@ public class SecurityConfig {
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails admin = User.builder()
-                .username("admin123")
-                .password("{bcrypt}$2a$10$L2XKxPwwNE.u8K.GEQYYN./1bPiBQx0l8cpLtVhX6vSALSvRV9aL.") // LkQH4ibu9X
-                .roles(Role.ADMIN.name())
+                .username(InMemoryUsersProperties.ADMIN.getUsername())
+                .password(InMemoryUsersProperties.ADMIN.getPassword())
+                .roles(InMemoryUsersProperties.ADMIN.getRoles())
                 .build();
 
         UserDetails user = User.builder()
-                .username("user123")
-                .password("{bcrypt}$2a$10$DBGodFa1rBrZBsCXvCiTXOP4wmQXqCNUqZ11ib416mTKzmpluKqBK") // oTEn251qS0
-                .roles(Role.USER.name())
+                .username(InMemoryUsersProperties.USER.getUsername())
+                .password(InMemoryUsersProperties.USER.getPassword())
+                .roles(InMemoryUsersProperties.USER.getRoles())
                 .build();
 
         return new InMemoryUserDetailsManager(admin, user);
@@ -45,9 +44,10 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/articles/stats").hasRole(Role.ADMIN.name())
-                .antMatchers(HttpMethod.GET, "/articles").permitAll()
                 .antMatchers(HttpMethod.POST, "/articles").hasAnyRole(Role.USER.name(), Role.ADMIN.name())
+                .antMatchers(HttpMethod.GET, "/articles").permitAll()
                 .antMatchers("/api-docs/**").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
                 .anyRequest().authenticated();
         return http.build();
     }

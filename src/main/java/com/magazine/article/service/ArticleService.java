@@ -4,6 +4,7 @@ import com.magazine.article.model.Article;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface ArticleService {
@@ -17,18 +18,20 @@ public interface ArticleService {
     Article createArticle(Article article);
 
     /**
-     * Retrieves all articles on certain page with specified page size
+     * Retrieves articles on the page with specified number and size
      *
-     * @param page number of the page
-     * @param size size of the page
-     * @return page of found articles
+     * @param page page number on which articles are to be retrieved
+     * @param size number of articles per page
+     * @return page of articles
      */
     Page<Article> getArticles(int page, int size);
 
     /**
-     * Counts number of articles per each day during the last 7 days
+     * Counts number of articles per each date from the specified period of time
      *
-     * @return map of date and respective articles number
+     * @param startDate start date of the period
+     * @param endDate   end date of the period
+     * @return map of dates and respective numbers of articles
      */
-    Map<LocalDate, Long> countArticlesPerDateForSevenDays();
+    Map<LocalDate, Long> countArticlesPerDate(LocalDateTime startDate, LocalDateTime endDate);
 }
