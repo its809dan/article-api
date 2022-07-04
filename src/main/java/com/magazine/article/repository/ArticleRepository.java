@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    List<Article> findByPublishingDateGreaterThan(OffsetDateTime publishingDate);
+    List<Article> findByPublicationDateBetween(OffsetDateTime minPublishingDate, OffsetDateTime maxPublishingDate);
 }

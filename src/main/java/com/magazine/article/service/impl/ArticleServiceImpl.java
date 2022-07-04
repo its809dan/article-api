@@ -31,20 +31,20 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Map<LocalDate, Long> countArticlesPerDateForSevenDays() {
-        LocalDateTime localDateTime = LocalDateTime.now().minusDays(6);
-        OffsetDateTime offsetDateTime = localDateTime.atOffset(ZoneOffset.UTC);
-        List<Article> articles = articleRepository.findByPublishingDateGreaterThan(offsetDateTime);
+    public Map<LocalDate, Long> countArticlesPerDate(LocalDateTime startDate, LocalDateTime endDate) {
+        OffsetDateTime startOffsetDate = OffsetDateTime.of(startDate, ZoneOffset.UTC).with(LocalTime.MIN);
+        OffsetDateTime endOffsetDate = OffsetDateTime.of(endDate, ZoneOffset.UTC).with(LocalTime.MAX);
+        List<Article> articles = articleRepository.findByPublicationDateBetween(startOffsetDate, endOffsetDate);
         Map<LocalDate, Long> articlesNumberPerDate = articles.stream()
-                                                             .collect(Collectors.groupingBy(article -> article.getPublishingDate().toLocalDate(),
+                                                             .collect(Collectors.groupingBy(article -> article.getPublicationDate().toLocalDate(),
                                                                       Collectors.counting()));
-        return fillDatesWithNoArticles(articlesNumberPerDate, offsetDateTime);
+        return fillDatesWithNoArticles(articlesNumberPerDate, startOffsetDate, endOffsetDate);
     }
 
-    private Map<LocalDate, Long> fillDatesWithNoArticles(Map<LocalDate, Long> articlesNumberPerDate, OffsetDateTime startDate) {
-        OffsetDateTime endDate = LocalDateTime.now().atOffset(ZoneOffset.UTC);
+    private Map<LocalDate, Long> fillDatesWithNoArticles(Map<LocalDate, Long> articlesNumberPerDate,
+                                                         OffsetDateTime startDate, OffsetDateTime endDate) {
         Map<LocalDate, Long> result = new HashMap<>(articlesNumberPerDate);
-        for (int i = 0; i < Duration.between(startDate, endDate).toDays(); i++) {
+        for (int i = 0; i <= Duration.between(startDate, endDate).toDays(); i++) {
             LocalDate date = startDate.plusDays(i).toLocalDate();
             if (!result.containsKey(date)) {
                 result.put(date, 0L);
